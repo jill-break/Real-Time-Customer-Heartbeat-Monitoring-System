@@ -1,2 +1,5 @@
 kafka creation files.txt
 .env
+.venv
+hadoop/
+checkpoints/

@@ -1,6 +1,7 @@
 # --- Infrastructure & Environment ---
 python-decouple==3.8        # Configuration and .env management
 pydantic==2.5.3             # Data validation (optional but recommended)
+pydantic-settings==2.0.3         # For structured settings management (optional but recommended)
 
 # --- Data Generation & Ingestion ---
 kafka-python==2.0.2         # Pure Python Kafka client for the Producer
