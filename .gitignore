@@ -3,3 +3,4 @@ kafka creation files.txt
 .venv
 hadoop/
 checkpoints/
+__pycache__/

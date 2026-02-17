@@ -1,16 +1,13 @@
 import json
 import time
-import random
-from datetime import datetime
 from kafka import KafkaProducer
-from faker import Faker
 
 from src.config import settings
 from src.utils.logger import get_logger
+from src.producer.generator import HeartbeatGenerator
 
 # Initialize logger for this module
 logger = get_logger(__name__)
-fake = Faker()
 
 class HeartbeatSimulator:
     """
@@ -18,7 +15,7 @@ class HeartbeatSimulator:
     """
     def __init__(self):
         self.topic = settings.KAFKA_TOPIC
-        self.customers = [f"CUST-{fake.unique.random_int(min=1000, max=9999)}" for _ in range(15)]
+        self.generator = HeartbeatGenerator()
         
         try:
             # Production-grade producer config
@@ -39,25 +36,6 @@ class HeartbeatSimulator:
             logger.critical(f"Failed to initialize Kafka Producer: {e}")
             raise
 
-    def generate_heartbeat(self, customer_id: str) -> dict:
-        """
-        Creates a realistic heartbeat reading.
-        Simulates: Normal (60-100), Elevated (101-140), and Critical (141+).
-        """
-        chance = random.random()
-        if chance > 0.95:  # 5% chance of critical spike
-            hr = random.randint(141, 190)
-        elif chance > 0.80: # 15% chance of elevated
-            hr = random.randint(101, 140)
-        else: # 80% chance of normal
-            hr = random.randint(60, 100)
-
-        return {
-            "customer_id": customer_id,
-            "heart_rate": hr,
-            "timestamp": datetime.now().isoformat()
-        }
-
     def on_send_success(self, record_metadata):
         """Callback for successful Kafka delivery."""
         # Note: In high-volume production, you might log this as DEBUG only
@@ -69,11 +47,11 @@ class HeartbeatSimulator:
 
     def run(self):
         """Main loop for the simulator."""
-        logger.info(f"Starting simulation with {len(self.customers)} customers...")
+        logger.info(f"Starting simulation with {len(self.generator.customers)} customers...")
         try:
             while True:
-                for customer_id in self.customers:
-                    data = self.generate_heartbeat(customer_id)
+                for customer_id in self.generator.customers:
+                    data = self.generator.generate_heartbeat(customer_id)
                     
                     # Asynchronous send with callbacks
                     self.producer.send(

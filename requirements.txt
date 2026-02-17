@@ -22,3 +22,5 @@ pandas==2.2.0               # Data manipulation for the dashboard
 # --- Logging & Quality ---
 loguru==0.7.2               # Advanced logging (alternative to standard logging)
 pytest==7.4.4               # Unit testing your pipeline logic
+pytest-mock==3.12.0         # Mocks for unit testing
+findspark==2.0.1            # Locate Spark on the system

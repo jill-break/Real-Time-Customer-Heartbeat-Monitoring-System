@@ -45,13 +45,25 @@ class DatabaseManager:
             customer_id VARCHAR(50) NOT NULL,
             heart_rate INTEGER NOT NULL,
             event_time TIMESTAMP NOT NULL,
+            risk_level VARCHAR(20),
             ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_customer_time ON heartbeats (customer_id, event_time DESC);
         """
+        alter_table_query = """
+        DO $$ 
+        BEGIN 
+            BEGIN
+                ALTER TABLE heartbeats ADD COLUMN risk_level VARCHAR(20);
+            EXCEPTION
+                WHEN duplicate_column THEN RAISE NOTICE 'column risk_level already exists in heartbeats.';
+            END;
+        END $$;
+        """
         with self.get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(create_table_query)
+                cur.execute(alter_table_query)
                 conn.commit()
                 logger.info("Database schema verified/created.")
 

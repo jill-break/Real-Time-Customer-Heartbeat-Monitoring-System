@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col
+from pyspark.sql.functions import from_json, col, when
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
 
 from src.config import settings
@@ -37,15 +37,14 @@ class SparkHeartbeatProcessor:
 
         logger.info(f"Processing batch {batch_id} with {len(records)} records.")
         
-        query = "INSERT INTO heartbeats (customer_id, heart_rate, event_time) VALUES (%s, %s, %s)"
+        query = "INSERT INTO heartbeats (customer_id, heart_rate, event_time, risk_level) VALUES (%s, %s, %s, %s)"
         
         try:
             with db_manager.get_connection() as conn:
                 with conn.cursor() as cur:
                     for row in records:
-                        # Basic Processing: Filter anomalies before DB insertion
-                        if 40 <= row['heart_rate'] <= 220:
-                            cur.execute(query, (row['customer_id'], row['heart_rate'], row['timestamp']))
+                        # Basic Processing: Filter anomalies before DB insertion (handled by Spark now, but double check doesn't hurt)
+                        cur.execute(query, (row['customer_id'], row['heart_rate'], row['event_time'], row['risk_level']))
                     conn.commit()
         except Exception as e:
             logger.error(f"Error writing batch {batch_id} to Postgres: {e}")
@@ -66,9 +65,22 @@ class SparkHeartbeatProcessor:
             json_df = raw_df.selectExpr("CAST(value AS STRING)") \
                 .select(from_json(col("value"), self.schema).alias("data")) \
                 .select("data.*")
+            
+            # Enhanced Processing:
+            # 1. Type Casting: Convert string timestamp to TimestampType
+            # 2. Filtering: Remove invalid heart rates (e.g., < 40)
+            # 3. Enrichment: Add risk_level based on heart_rate
+            processed_df = json_df \
+                .withColumn("event_time", col("timestamp").cast(TimestampType())) \
+                .filter(col("heart_rate") >= 40) \
+                .withColumn("risk_level", 
+                    when(col("heart_rate") > 140, "High")
+                    .when((col("heart_rate") >= 100) & (col("heart_rate") <= 140), "Elevated")
+                    .otherwise("Normal")
+                )
 
             # 5. Sink: Write to Postgres using foreachBatch
-            query = json_df.writeStream \
+            query = processed_df.writeStream \
                 .foreachBatch(self._upsert_to_postgres) \
                 .option("checkpointLocation", "checkpoints/heartbeats") \
                 .start()
