@@ -1,37 +1,40 @@
 import os
-from decouple import config, UndefinedValueError
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-try:
-    # Kafka Configurations
-    KAFKA_BROKER = config('KAFKA_BROKER', default='localhost:9092')
-    KAFKA_TOPIC = config('KAFKA_TOPIC', default='customer_heartbeats')
+class Settings(BaseSettings):
+    """
+    Validates and loads environment variables.
+    Settings are automatically mapped from .env file.
+    """
+    # Kafka Settings
+    KAFKA_BROKER: str = "localhost:9092"
+    KAFKA_TOPIC: str = "customer_heartbeats"
     
-    KAFKA_CONFIG = {
-        'broker': KAFKA_BROKER,
-        'topic': KAFKA_TOPIC
-    }
-
-    # Database Configurations
-    DB_CONFIG = {
-        'host': config('DB_HOST', default='localhost'),
-        'database': config('DB_NAME', default='monitoring_db'),
-        'user': config('DB_USER'),
-        'password': config('DB_PASS'),
-        'port': config('DB_PORT', default=5432, cast=int)
-    }
-
+    # Postgres Settings
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_NAME: str = "monitoring_db"
+    DB_USER: str
+    DB_PASS: str
+    
     # Simulation Settings
-    SIMULATION_INTERVAL = config('SIMULATION_INTERVAL', default=1.0, cast=float)
+    SIMULATION_INTERVAL: float = 1.0
     
-    logger.info("Configuration loaded successfully from environment.")
+    # Spark Settings
+    # This package is required for Spark to talk to Kafka
+    KAFKA_JAR_PACKAGE: str = "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0"
+    # Postgres Jar for Spark to talk to Postgres
+    POSTGRES_JAR_PACKAGE: str = "org.postgresql:postgresql:42.7.1"
 
-except UndefinedValueError as e:
-    logger.error(f"Missing required environment variable: {e}")
-    # In production, we want the app to crash if config is missing
-    raise SystemExit(1)
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+try:
+    # Initialize settings
+    settings = Settings()
+    logger.info("Production configuration loaded successfully.")
 except Exception as e:
-    logger.error(f"Unexpected error loading configuration: {e}")
+    logger.error(f"Failed to load configuration. Ensure .env is set correctly: {e}")
     raise SystemExit(1)
