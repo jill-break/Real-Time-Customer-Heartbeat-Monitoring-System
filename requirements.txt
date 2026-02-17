@@ -1,0 +1,23 @@
+# --- Infrastructure & Environment ---
+python-decouple==3.8        # Configuration and .env management
+pydantic==2.5.3             # Data validation (optional but recommended)
+
+# --- Data Generation & Ingestion ---
+kafka-python==2.0.2         # Pure Python Kafka client for the Producer
+faker==22.6.0               # Generating synthetic customer data
+
+# --- Processing Engine (Spark) ---
+# Note: Ensure Java 8/11 and Spark are installed on your host/container
+pyspark==3.5.0              # Spark Structured Streaming engine
+
+# --- Database & Storage ---
+psycopg2-binary==2.9.9      # PostgreSQL adapter for metadata and sink tests
+sqlalchemy==2.0.25          # Optional: for easier DB ORM operations
+
+# --- Dashboard & Visualization ---
+streamlit==1.30.0           # Real-time web dashboard
+pandas==2.2.0               # Data manipulation for the dashboard
+
+# --- Logging & Quality ---
+loguru==0.7.2               # Advanced logging (alternative to standard logging)
+pytest==7.4.4               # Unit testing your pipeline logic
