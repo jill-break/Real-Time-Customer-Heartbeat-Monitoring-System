@@ -35,5 +35,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # --- Visualization Layer ---
+  grafana:
+    image: grafana/grafana:latest
+    container_name: heartbeat_grafana
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
 volumes:
   postgres_data:

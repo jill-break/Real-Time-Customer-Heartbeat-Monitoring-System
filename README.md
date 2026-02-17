@@ -78,6 +78,18 @@ python main.py producer
 | `event_time` | TIMESTAMP | Time of reading |
 | `ingested_at` | TIMESTAMP | System insertion time |
 
+## Dashboard
+
+A **Grafana** dashboard is available for real-time visualization of heartbeat data.
+
+*   **URL**: http://localhost:3000
+*   **Default Credentials**: `admin` / `admin` (or defined in `docker-compose.yml`)
+*   **Datasource**: Pre-configured to connect to `monitoring_db`.
+
 ## Testing
 
-(Coming Soon: Unit tests for generator and pipeline integration)
+Run the comprehensive test suite using `pytest`:
+
+```bash
+python -m pytest tests/
+```
