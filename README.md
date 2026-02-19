@@ -94,7 +94,7 @@ docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM he
 ### Terminal 4: postgres query table 2
 Starts generating and sending synthetic heartbeat data.
 ```bash
-docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeats ORDER BY event_time DESC LIMIT 10;" 
+docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeat_aggregates ORDER BY window_start DESC LIMIT 10;" 
 ```
 
 ## Data Schema
