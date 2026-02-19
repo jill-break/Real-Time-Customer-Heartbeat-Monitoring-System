@@ -63,6 +63,8 @@ The system consists of three main stages:
     ```bash
     docker-compose up -d
     ```
+    ![Docker Container Creations](screenshots/1%20-%20Docker%20Container%20creations.png)
+    ![Docker Running Containers](screenshots/2%20-%20Docker%20running%20containers.png)
 
 4.  **Install Dependencies**
     ```bash
@@ -84,18 +86,21 @@ Starts generating and sending synthetic heartbeat data.
 ```bash
 python main.py producer
 ```
+![Consumer and Producer Running](screenshots/3%20-%20Consumer%20and%20Producer%20running%20sideby%20side.png)
 
 ### Terminal 3: PostGres Query table 1
 Starts generating and sending synthetic heartbeat data.
 ```bash
 docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeats ORDER BY event_time DESC LIMIT 10;"
 ```
+![Postgres Table 1](screenshots/6%20-%20Postgres%20Table%201.png)
 
 ### Terminal 4: postgres query table 2
 Starts generating and sending synthetic heartbeat data.
 ```bash
 docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeat_aggregates ORDER BY window_start DESC LIMIT 10;" 
 ```
+![Postgres Table 2](screenshots/7%20-%20Postgres%20Table%202.png)
 
 ## Data Schema
 
@@ -123,10 +128,15 @@ docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM he
 ### Grafana (Metrics)
 *   **URL**: http://localhost:3000
  *   **Credentials**: `admin` / `admin`
+
+![Grafana Dashboard](screenshots/8%20-%20Grafana%20Dashboard.png)
  
 ### Kafka UI (Stream Monitoring)
 *   **URL**: http://localhost:8080
 *   inspect topics, messages, and consumer groups in real-time.
+
+![Kafka UI Broker](screenshots/4%20-%20Kafka%20UI%20-%20Broker.png)
+![Kafka UI Topic](screenshots/5%20-%20Kafka%20UI%20-%20Topic.png)
 
 ## Testing & CI/CD
  
