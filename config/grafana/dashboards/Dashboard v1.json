@@ -5,7 +5,7 @@
         "builtIn": 1,
         "datasource": {
           "type": "grafana",
-          "uid": "-- Grafana --"
+          "uid": "Heartbeat Dash v1"
         },
         "enable": true,
         "hide": true,
@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 3,
   "links": [],
   "panels": [
     {
       "datasource": {
-        "type": "postgres",
-        "uid": "P1B2761356790B554"
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -112,25 +112,8 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  event_time AS \"time\",\n  heart_rate\nFROM heartbeats\nORDER BY event_time DESC\nLIMIT 50",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "rawSql": "SELECT\n  event_time AS \"time\",\n  heart_rate\nFROM heartbeats\nORDER BY event_time DESC\nLIMIT 100",
+          "refId": "A"
         }
       ],
       "title": "Real-Time Heart Rate",
@@ -199,35 +182,153 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT count(*) FROM heartbeats",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "rawSql": "SELECT count(*) as total_records FROM heartbeats",
+          "refId": "A"
         }
       ],
       "title": "Total Records",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P1B2761356790B554"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT event_time, heart_rate, id FROM heartbeats ORDER BY event_time DESC LIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Heartbeat Events",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P1B2761356790B554"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT AVG(heart_rate) as avg_hr FROM heartbeats",
+          "refId": "A"
+        }
+      ],
+      "title": "Average Heart Rate",
       "type": "stat"
     }
   ],
   "preload": false,
   "refresh": "5s",
   "schemaVersion": 42,
-  "tags": [],
+  "tags": [
+    "heartbeat",
+    "demo"
+  ],
   "templating": {
     "list": []
   },
@@ -238,6 +339,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "Customer Heartbeat Monitor",
-  "uid": "cdj56s789",
+  "uid": "cdj56s789-monitor",
   "version": 1
 }

@@ -5,7 +5,7 @@
         "builtIn": 1,
         "datasource": {
           "type": "grafana",
-          "uid": "-- Grafana --"
+          "uid": "Heartbeat Dash v2"
         },
         "enable": true,
         "hide": true,
@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -28,54 +28,21 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": 0
               },
               {
+                "color": "orange",
+                "value": 70
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 85
               }
             ]
           }
@@ -83,24 +50,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 4,
+        "w": 6,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 3,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
       "pluginVersion": "12.3.3",
       "targets": [
@@ -110,14 +79,14 @@
             "uid": "P1B2761356790B554"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  event_time AS \"time\",\n  heart_rate\nFROM heartbeats\nORDER BY event_time DESC\nLIMIT 100",
+          "rawSql": "SELECT AVG(heart_rate) as avg_hr FROM heartbeats",
           "refId": "A"
         }
       ],
-      "title": "Real-Time Heart Rate",
-      "type": "timeseries"
+      "title": "Average Heart Rate",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -147,9 +116,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 4,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "id": 2,
@@ -224,10 +193,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 16,
         "w": 12,
-        "x": 0,
-        "y": 8
+        "x": 12,
+        "y": 0
       },
       "id": 4,
       "options": {
@@ -244,8 +213,25 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT event_time, heart_rate, device_id FROM heartbeats ORDER BY event_time DESC LIMIT 50",
-          "refId": "A"
+          "rawSql": "SELECT event_time, heart_rate, id FROM heartbeats ORDER BY event_time DESC LIMIT 50",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Recent Heartbeat Events",
@@ -259,7 +245,21 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -279,30 +279,28 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 8
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 4
       },
-      "id": 3,
+      "id": 1,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
+        "legend": {
           "calcs": [
-            "mean"
+            "lastNotNull",
+            "firstNotNull",
+            "min"
           ],
-          "fields": "",
-          "values": false
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.3",
       "targets": [
@@ -312,14 +310,31 @@
             "uid": "P1B2761356790B554"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT AVG(heart_rate) as avg_hr FROM heartbeats",
-          "refId": "A"
+          "rawSql": "SELECT\n  event_time AS \"time\",\n  heart_rate\nFROM heartbeats\nORDER BY event_time DESC\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
-      "title": "Average Heart Rate",
-      "type": "stat"
+      "title": "Real-Time Heart Rate",
+      "type": "histogram"
     }
   ],
   "preload": false,
