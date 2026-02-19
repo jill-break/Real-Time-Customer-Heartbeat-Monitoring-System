@@ -25,6 +25,15 @@ class SparkHeartbeatProcessor:
             StructField("heart_rate", IntegerType(), True),
             StructField("timestamp", StringType(), True)
         ])
+        
+        import time
+        self.last_batch_time = time.time()
+        
+        import time
+        self.last_batch_time = time.time()
+        
+        import time
+        self.last_batch_time = time.time()
 
     def _upsert_to_postgres(self, df, batch_id):
         """
@@ -34,6 +43,9 @@ class SparkHeartbeatProcessor:
         records = df.collect()
         if not records:
             return
+
+        import time
+        self.last_batch_time = time.time()
 
         logger.info(f"Processing batch {batch_id} with {len(records)} records.")
         
@@ -156,7 +168,25 @@ class SparkHeartbeatProcessor:
         finally:
             self.spark.stop()
             logger.info("Spark Session stopped.")
+            
+    def _monitor_idle_state(self):
+        """
+        Background thread to check if data has stopped flowing.
+        """
+        import time
+        from src.utils.alerter import Alerter
+        
+        logger.info(f"Idle monitor started (Threshold: {settings.DATA_IDLE_THRESHOLD_SECONDS}s)")
+        
+        while True:
+            time.sleep(10)
+            elapsed = time.time() - self.last_batch_time
+            if elapsed > settings.DATA_IDLE_THRESHOLD_SECONDS:
+                Alerter.send_alert(f"No data received for {int(elapsed)} seconds!")
 
 if __name__ == "__main__":
-    processor = SparkHeartbeatProcessor()
+    import threading
+    monitor_thread = threading.Thread(target=processor._monitor_idle_state, daemon=True)
+    monitor_thread.start()
+    
     processor.run()

@@ -85,6 +85,18 @@ Starts generating and sending synthetic heartbeat data.
 python main.py producer
 ```
 
+### Terminal 3: PostGres Query table 1
+Starts generating and sending synthetic heartbeat data.
+```bash
+docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeats ORDER BY event_time DESC LIMIT 10;"
+```
+
+### Terminal 4: postgres query table 2
+Starts generating and sending synthetic heartbeat data.
+```bash
+docker exec -it heartbeat_db psql -U admin -d monitoring_db -c "SELECT * FROM heartbeats ORDER BY event_time DESC LIMIT 10;" 
+```
+
 ## Data Schema
 
 **PostgreSQL Table: `heartbeats`**

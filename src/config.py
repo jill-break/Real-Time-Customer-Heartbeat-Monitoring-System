@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # Postgres Jar for Spark to talk to Postgres
     POSTGRES_JAR_PACKAGE: str = "org.postgresql:postgresql:42.7.1"
 
+    # Monitoring Settings
+    DATA_IDLE_THRESHOLD_SECONDS: int = 30
+    ALERT_EMAIL: str = "admin@example.com"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 try:
