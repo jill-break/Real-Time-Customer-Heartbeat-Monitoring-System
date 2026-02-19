@@ -29,7 +29,7 @@ def get_logger(name: str):
     console_handler.setFormatter(log_format)
     logger.addHandler(console_handler)
 
-    # 3. Rotating File Handler (Production Essential)
+    # 3. Rotating File Handler
     # Creates 'logs' directory if it doesn't exist
     log_dir = "logs"
     if not os.path.exists(log_dir):
