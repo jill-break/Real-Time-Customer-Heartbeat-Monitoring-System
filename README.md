@@ -24,8 +24,7 @@ The system consists of three main stages:
 
 1.  **Clone the Repository**
     ```bash
-    git clone <repository_url>
-    cd DEM10
+    git clone https://github.com/jill-break/Real-Time-Customer-Heartbeat-Monitoring-System.git
     ```
 
 2.  **Environment Configuration**
