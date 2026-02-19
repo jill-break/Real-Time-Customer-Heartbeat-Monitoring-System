@@ -13,8 +13,8 @@ def test_singleton_pattern(mock_psycopg2_pool):
     # Reset singleton instance for testing
     DatabaseManager._instance = None
     
-    db1 = DatabaseManager()
-    db2 = DatabaseManager()
+    db1 = DatabaseManager.get_instance()
+    db2 = DatabaseManager.get_instance()
     
     assert db1 is db2
     mock_psycopg2_pool.assert_called_once()
@@ -22,7 +22,7 @@ def test_singleton_pattern(mock_psycopg2_pool):
 def test_connection_pool_initialization(mock_psycopg2_pool):
     """Test that connection pool is initialized with correct params."""
     DatabaseManager._instance = None
-    db = DatabaseManager()
+    db = DatabaseManager.get_instance()
     
     assert db.connection_pool is not None
     # getconn is called by _ensure_schema during initialization
@@ -38,7 +38,7 @@ def test_ensure_schema_execution(mock_psycopg2_pool):
     mock_psycopg2_pool.return_value.getconn.return_value = mock_conn
     mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
     
-    db = DatabaseManager()
+    db = DatabaseManager.get_instance()
     
     # Verify execute was called (for creating table and index)
     assert mock_cursor.execute.call_count >= 1

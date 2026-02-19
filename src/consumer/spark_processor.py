@@ -3,7 +3,7 @@ from pyspark.sql.functions import from_json, col, when
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
 
 from src.config import settings
-from src.database.db_manager import db_manager
+from src.database.db_manager import DatabaseManager
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -40,7 +40,7 @@ class SparkHeartbeatProcessor:
         query = "INSERT INTO heartbeats (customer_id, heart_rate, event_time, risk_level) VALUES (%s, %s, %s, %s)"
         
         try:
-            with db_manager.get_connection() as conn:
+            with DatabaseManager.get_instance().get_connection() as conn:
                 with conn.cursor() as cur:
                     for row in records:
                         # Basic Processing: Filter anomalies before DB insertion (handled by Spark now, but double check doesn't hurt)

@@ -13,14 +13,22 @@ class DatabaseManager:
     Follows the Singleton pattern to ensure only one pool exists.
     """
     _instance = None
+    
+    def __init__(self):
+        self.connection_pool = None
 
-    def __new__(cls):
+    @classmethod
+    def get_instance(cls):
+        """Returns the singleton instance, initializing it if necessary."""
         if cls._instance is None:
-            cls._instance = super(DatabaseManager, cls).__new__(cls)
+            cls._instance = cls()
             cls._instance._initialize_pool()
         return cls._instance
 
     def _initialize_pool(self):
+        if self.connection_pool:
+            return
+
         try:
             logger.info(f"Initializing connection pool on {settings.DB_HOST}:{settings.DB_PORT}...")
             self.connection_pool = psycopg2.pool.ThreadedConnectionPool(
@@ -77,4 +85,4 @@ class DatabaseManager:
             logger.info("Database connection pool closed.")
 
 # Initialize the singleton instance for use across the app
-db_manager = DatabaseManager()
+# db_manager = DatabaseManager()  <-- Removed global auto-init

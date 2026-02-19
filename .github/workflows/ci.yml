@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  DB_USER: "ci_test_user"
+  DB_PASS: "ci_test_pass"
+
 jobs:
   test:
     runs-on: ubuntu-latest
