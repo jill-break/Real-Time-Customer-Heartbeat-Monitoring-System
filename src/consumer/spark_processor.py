@@ -72,7 +72,7 @@ class SparkHeartbeatProcessor:
             # 3. Enrichment: Add risk_level based on heart_rate
             processed_df = json_df \
                 .withColumn("event_time", col("timestamp").cast(TimestampType())) \
-                .filter(col("heart_rate") >= 40) \
+                .filter((col("heart_rate") >= 30) & (col("heart_rate") <= 220)) \
                 .withColumn("risk_level", 
                     when(col("heart_rate") > 140, "High")
                     .when((col("heart_rate") >= 100) & (col("heart_rate") <= 140), "Elevated")

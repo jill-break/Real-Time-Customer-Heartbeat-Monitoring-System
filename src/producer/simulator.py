@@ -38,7 +38,6 @@ class HeartbeatSimulator:
 
     def on_send_success(self, record_metadata):
         """Callback for successful Kafka delivery."""
-        # Note: In high-volume production, you might log this as DEBUG only
         pass
 
     def on_send_error(self, excp):
@@ -53,7 +52,6 @@ class HeartbeatSimulator:
                 for customer_id in self.generator.customers:
                     data = self.generator.generate_heartbeat(customer_id)
                     
-                    # Asynchronous send with callbacks
                     self.producer.send(
                         self.topic, 
                         value=data

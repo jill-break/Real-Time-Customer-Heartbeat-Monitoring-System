@@ -1,14 +1,15 @@
 from faker import Faker
 import random
+import uuid
 from datetime import datetime
 
 class HeartbeatGenerator:
     """
     Generates realistic heartbeat data for a set of customers.
     """
-    def __init__(self, num_customers=15):
+    def __init__(self, num_customers=15): # 15 customers per sec and 900 per min
         self.fake = Faker()
-        self.customers = [f"CUST-{self.fake.unique.random_int(min=1000, max=9999)}" for _ in range(num_customers)]
+        self.customers = [str(uuid.uuid4()) for _ in range(num_customers)]
 
     def generate_heartbeat(self, customer_id: str) -> dict:
         """

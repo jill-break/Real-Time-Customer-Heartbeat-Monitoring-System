@@ -1,4 +1,5 @@
 import psycopg2
+import os
 from psycopg2 import pool
 from contextlib import contextmanager
 from src.config import settings
@@ -39,33 +40,23 @@ class DatabaseManager:
 
     def _ensure_schema(self):
         """Creates the necessary tables and indexes if they don't exist."""
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS heartbeats (
-            id SERIAL PRIMARY KEY,
-            customer_id VARCHAR(50) NOT NULL,
-            heart_rate INTEGER NOT NULL,
-            event_time TIMESTAMP NOT NULL,
-            risk_level VARCHAR(20),
-            ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_customer_time ON heartbeats (customer_id, event_time DESC);
-        """
-        alter_table_query = """
-        DO $$ 
-        BEGIN 
-            BEGIN
-                ALTER TABLE heartbeats ADD COLUMN risk_level VARCHAR(20);
-            EXCEPTION
-                WHEN duplicate_column THEN RAISE NOTICE 'column risk_level already exists in heartbeats.';
-            END;
-        END $$;
-        """
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(create_table_query)
-                cur.execute(alter_table_query)
-                conn.commit()
-                logger.info("Database schema verified/created.")
+        schema_path = os.path.join(os.path.dirname(__file__), 'db_schema.sql')
+        
+        try:
+            with open(schema_path, 'r') as f:
+                schema_sql = f.read()
+            
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(schema_sql)
+                    conn.commit()
+                    logger.info("Database schema verified/created.")
+        except FileNotFoundError:
+            logger.error(f"Schema file not found at {schema_path}")
+            raise
+        except Exception as e:
+            logger.error(f"Error executing schema script: {e}")
+            raise
 
     @contextmanager
     def get_connection(self):
