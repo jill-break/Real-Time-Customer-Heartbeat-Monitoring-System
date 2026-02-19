@@ -18,7 +18,7 @@ The system consists of three main stages:
 
 *   **Docker & Docker Compose**: For running Kafka, Zookeeper, and PostgreSQL.
 *   **Python 3.9+**: For running the producer and consumer.
-*   **Java 8/11**: Required for Spark.
+*   **Java 17**: Required for Spark.
 
 ## Setup & Installation
 
@@ -71,24 +71,32 @@ python main.py producer
 **PostgreSQL Table: `heartbeats`**
 | Column | Type | Description |
 | :--- | :--- | :--- |
-| `id` | SERIAL pk | Unique record ID |
-| `customer_id` | VARCHAR | Customer Identifier (e.g., CUST-1234) |
-| `heart_rate` | INT | BPM Value (60-190) |
-| `event_time` | TIMESTAMP | Time of reading |
+| `id` | BIGINT IDENTITY | Unique record ID |
+| `customer_id` | UUID | Customer Identifier (e.g., 550e8400-e29b...) |
+| `heart_rate` | INT | BPM Value (30-220) |
+| `event_time` | TIMESTAMP | Time of reading (Indexed) |
+| `risk_level` | VARCHAR | Calculated risk (Normal, Elevated, High) |
 | `ingested_at` | TIMESTAMP | System insertion time |
 
-## Dashboard
-
-A **Grafana** dashboard is available for real-time visualization of heartbeat data.
-
+## Dashboards
+ 
+### Grafana (Metrics)
 *   **URL**: http://localhost:3000
-*   **Default Credentials**: `admin` / `admin` (or defined in `docker-compose.yml`)
-*   **Datasource**: Pre-configured to connect to `monitoring_db`.
+ *   **Credentials**: `admin` / `admin`
+ 
+### Kafka UI (Stream Monitoring)
+*   **URL**: http://localhost:8080
+*   inspect topics, messages, and consumer groups in real-time.
 
-## Testing
-
+## Testing & CI/CD
+ 
+### Local Testing
 Run the comprehensive test suite using `pytest`:
-
 ```bash
 python -m pytest tests/
 ```
+ 
+### CI Pipeline
+A GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs tests on every `push` and `pull_request` to `main`.
+*   **Environment**: Python 3.9, Java 17, Ubuntu Latest.
+*   **Triggers**: Commits to main branch.
