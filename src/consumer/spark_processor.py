@@ -49,6 +49,40 @@ class SparkHeartbeatProcessor:
         except Exception as e:
             logger.error(f"Error writing batch {batch_id} to Postgres: {e}")
 
+    def _upsert_aggregates_to_postgres(self, df, batch_id):
+        """
+        Writes aggregated metrics to heartbeat_aggregates table.
+        """
+        records = df.collect()
+        if not records:
+            return
+
+        logger.info(f"Writing {len(records)} aggregate records for batch {batch_id}.")
+        
+        query = """
+            INSERT INTO heartbeat_aggregates (window_start, window_end, customer_id, avg_heart_rate, max_heart_rate)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (window_start, customer_id) 
+            DO UPDATE SET 
+                avg_heart_rate = EXCLUDED.avg_heart_rate,
+                max_heart_rate = EXCLUDED.max_heart_rate;
+        """
+        
+        try:
+            with DatabaseManager.get_instance().get_connection() as conn:
+                with conn.cursor() as cur:
+                    for row in records:
+                        cur.execute(query, (
+                            row['window_start'], 
+                            row['window_end'], 
+                            row['customer_id'], 
+                            row['avg_heart_rate'], 
+                            row['max_heart_rate']
+                        ))
+                    conn.commit()
+        except Exception as e:
+            logger.error(f"Error writing aggregates batch {batch_id}: {e}")
+
     def run(self):
         logger.info("Starting Spark Structured Streaming Consumer...")
 
@@ -80,12 +114,42 @@ class SparkHeartbeatProcessor:
                 )
 
             # 5. Sink: Write to Postgres using foreachBatch
-            query = processed_df.writeStream \
+            # Branch 1: Raw Data
+            query_raw = processed_df.writeStream \
                 .foreachBatch(self._upsert_to_postgres) \
-                .option("checkpointLocation", "checkpoints/heartbeats") \
+                .option("checkpointLocation", "checkpoints/heartbeats_raw") \
+                .trigger(processingTime="5 seconds") \
                 .start()
 
-            query.awaitTermination()
+            # Branch 2: Windowed Aggregates (1 minute window, sliding every 30 seconds)
+            from pyspark.sql.functions import window, avg, max
+            
+            aggregates_df = processed_df \
+                .withWatermark("event_time", "2 minutes") \
+                .groupBy(
+                    window("event_time", "1 minute", "30 seconds"),
+                    "customer_id"
+                ) \
+                .agg(
+                    avg("heart_rate").alias("avg_heart_rate"),
+                    max("heart_rate").alias("max_heart_rate")
+                ) \
+                .select(
+                    col("window.start").alias("window_start"),
+                    col("window.end").alias("window_end"),
+                    col("customer_id"),
+                    col("avg_heart_rate"),
+                    col("max_heart_rate")
+                )
+
+            query_agg = aggregates_df.writeStream \
+                .foreachBatch(self._upsert_aggregates_to_postgres) \
+                .outputMode("update") \
+                .option("checkpointLocation", "checkpoints/heartbeats_agg") \
+                .trigger(processingTime="1 minute") \
+                .start()
+
+            self.spark.streams.awaitAnyTermination()
 
         except Exception as e:
             logger.critical(f"Spark Streaming Job failed: {e}")

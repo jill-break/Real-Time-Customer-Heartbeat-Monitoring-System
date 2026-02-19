@@ -97,6 +97,15 @@ python main.py producer
 | `risk_level` | VARCHAR | Calculated risk (Normal, Elevated, High) |
 | `ingested_at` | TIMESTAMP | System insertion time |
 
+**PostgreSQL Table: `heartbeat_aggregates`**
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `window_start` | TIMESTAMP | Start of the 1-minute window |
+| `window_end` | TIMESTAMP | End of the 1-minute window |
+| `customer_id` | UUID | Customer Identifier |
+| `avg_heart_rate` | DOUBLE | Average BPM in window |
+| `max_heart_rate` | INT | Max BPM in window |
+
 ## Dashboards
  
 ### Grafana (Metrics)

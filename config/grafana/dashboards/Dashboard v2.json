@@ -341,8 +341,7 @@
   "refresh": "5s",
   "schemaVersion": 42,
   "tags": [
-    "heartbeat",
-    "demo"
+    "heartbeat"    
   ],
   "templating": {
     "list": []
@@ -353,7 +352,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Customer Heartbeat Monitor",
+  "title": "Customer Heartbeat Monitor V2",
   "uid": "cdj56s789-monitor",
   "version": 1
 }

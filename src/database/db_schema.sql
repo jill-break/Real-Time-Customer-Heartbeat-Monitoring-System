@@ -12,3 +12,12 @@ ON heartbeats (customer_id, event_time DESC);
 
 CREATE INDEX IF NOT EXISTS idx_event_time 
 ON heartbeats (event_time DESC);
+
+CREATE TABLE IF NOT EXISTS heartbeat_aggregates (
+    window_start TIMESTAMP NOT NULL,
+    window_end TIMESTAMP NOT NULL,
+    customer_id UUID NOT NULL,
+    avg_heart_rate DOUBLE PRECISION NOT NULL,
+    max_heart_rate INTEGER NOT NULL,
+    PRIMARY KEY (window_start, customer_id)
+);

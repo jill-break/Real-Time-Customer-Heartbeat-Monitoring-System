@@ -1,7 +1,7 @@
 import sys
 import argparse
 from src.utils.logger import get_logger
-from src.database.db_manager import db_manager
+from src.database.db_manager import DatabaseManager
 from src.producer.simulator import HeartbeatSimulator
 from src.consumer.spark_processor import SparkHeartbeatProcessor
 
@@ -50,7 +50,7 @@ def main():
         logger.info("Shutdown signal received.")
     finally:
         # Crucial for production: Cleanup resources
-        db_manager.close_all()
+        DatabaseManager.get_instance().close_all()
         logger.info("System resources cleaned up. Goodbye!")
 
 if __name__ == "__main__":
