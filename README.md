@@ -4,24 +4,7 @@ A scalable data engineering pipeline that simulates, processes, and stores real-
 
 ## System Architecture
 
-```mermaid
-graph TD
-    subgraph "Ingestion Layer"
-        Simulator["IoT Simulator<br/>(Python)"] -->|Generates Heartbeats| Generator[Data Generator]
-        Generator -->|JSON Events| Kafka["Apache Kafka<br/>(Topic: customer_heartbeats)"]
-    end
-
-    subgraph "Processing Layer"
-        Kafka -->|Consumes Stream| Spark[Spark Structured Streaming]
-        Spark -->|Validates Schema| Filter{Filter Logic}
-        Filter -->|Risk Classification| Transformer[Data Transformation]
-    end
-
-    subgraph "Storage & Vis Layer"
-        Transformer -->|Writes Micro-batches| Postgres[(PostgreSQL DB)]
-        Postgres -->|Queries| Grafana[Grafana Dashboard]
-    end
-```
+![Docker Container Creations](screenshots/Architecture.png)
 
 The system consists of three main stages:
 
